@@ -16,7 +16,8 @@ class ProductBase(BaseModel):
 
 
 class ProductCreate(ProductBase):
-    pass
+    initial_stock: Optional[int] = Field(default=0, ge=0)
+
 
 
 class ProductUpdate(BaseModel):

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy import Column, String, ForeignKey, Numeric, Integer, DateTime, Date, Text
+from sqlalchemy import Column, String, ForeignKey, Numeric, Integer, DateTime, Date, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -50,11 +50,19 @@ class Return(BaseModel):
     __tablename__ = "returns"
 
     order_id = Column(String(36), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True)
+    sku = Column(String(100), nullable=True, index=True)
     return_date = Column(DateTime(timezone=True), nullable=False)
     return_reason = Column(String(255), nullable=True)
     return_type = Column(String(50), default="CustomerReturn", nullable=False)  # CustomerReturn, CourierReturn_RTO
+    condition = Column(String(50), default="sellable", nullable=False)  # sellable, damaged, lost
     status = Column(String(50), default="Completed", nullable=False)  # Initiated, Received, Damaged
     restock_fee = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
+
+    # Detailed RTO Loss Breakdown
+    shipping_loss = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
+    packaging_loss = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
+    product_damage_loss = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
+    total_loss = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
 
     order = relationship("Order", back_populates="returns")
 
@@ -64,11 +72,14 @@ class Expense(BaseModel):
     __tablename__ = "expenses"
 
     organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
-    category = Column(String(100), nullable=False, index=True)  # Packaging, ShippingSupplies, Rent, Staff, Software, Marketing
+    category = Column(String(100), nullable=False, index=True)  # Packaging, Rent, Staff, Software, Marketing, CA_Accountant, Utilities
     amount = Column(Numeric(12, 2), default=Decimal("0.00"), nullable=False)
     currency = Column(String(3), default="INR", nullable=False)
     date = Column(Date, nullable=False, index=True)
     description = Column(Text, nullable=True)
+    vendor_name = Column(String(255), nullable=True)
+    payment_method = Column(String(50), default="Bank Transfer", nullable=True)  # Bank Transfer, UPI, Credit Card, Cash
+    is_recurring = Column(Boolean, default=False, nullable=False)
 
     organization = relationship("Organization", back_populates="expenses")
 

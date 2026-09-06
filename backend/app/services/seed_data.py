@@ -170,11 +170,75 @@ def seed_demo_data(db: Session) -> Organization:
             Fee(order_id=order.id, order_item_id=item.id, fee_type="TCS", amount=Decimal("9.99"), currency="INR"),
         ])
 
-    # 5. Expenses
+    # 5. Expenses (Fixed Overheads + Operational)
     today = date.today()
     db.add_all([
-        Expense(organization_id=org.id, category="Packaging Material", amount=Decimal("4500.00"), currency="INR", date=today - timedelta(days=5), description="Corrugated 3-ply boxes (1000 pcs)"),
-        Expense(organization_id=org.id, category="Software", amount=Decimal("2499.00"), currency="INR", date=today - timedelta(days=10), description="Inventory & GST invoicing subscription"),
+        Expense(
+            organization_id=org.id,
+            category="Warehouse Rent",
+            amount=Decimal("15000.00"),
+            currency="INR",
+            date=today - timedelta(days=2),
+            description="Monthly fulfillment warehouse space rental (Bhiwandi hub)",
+            vendor_name="Shree Ram Warehousing Ltd",
+            payment_method="Bank Transfer",
+            is_recurring=True,
+        ),
+        Expense(
+            organization_id=org.id,
+            category="Staff Salaries",
+            amount=Decimal("18000.00"),
+            currency="INR",
+            date=today - timedelta(days=5),
+            description="2 warehouse order pickers and packing associates",
+            vendor_name="Internal Payroll",
+            payment_method="Bank Transfer",
+            is_recurring=True,
+        ),
+        Expense(
+            organization_id=org.id,
+            category="Packaging Materials",
+            amount=Decimal("4500.00"),
+            currency="INR",
+            date=today - timedelta(days=8),
+            description="Corrugated 3-ply boxes, bubble wrap rolls (1000 pcs)",
+            vendor_name="Packman Packaging India",
+            payment_method="UPI",
+            is_recurring=False,
+        ),
+        Expense(
+            organization_id=org.id,
+            category="CA & Tax Filing",
+            amount=Decimal("3500.00"),
+            currency="INR",
+            date=today - timedelta(days=12),
+            description="Monthly GSTR-1, GSTR-3B filing and TDS 194-O reconciliation",
+            vendor_name="Khandelwal & Associates CA",
+            payment_method="Bank Transfer",
+            is_recurring=True,
+        ),
+        Expense(
+            organization_id=org.id,
+            category="Software Subscriptions",
+            amount=Decimal("2499.00"),
+            currency="INR",
+            date=today - timedelta(days=15),
+            description="E-commerce inventory and invoicing SaaS subscription",
+            vendor_name="Sellora Analytics",
+            payment_method="Credit Card",
+            is_recurring=True,
+        ),
+        Expense(
+            organization_id=org.id,
+            category="Office Utilities",
+            amount=Decimal("1850.00"),
+            currency="INR",
+            date=today - timedelta(days=18),
+            description="Warehouse thermal printer labels and barcode ribbon",
+            vendor_name="Bartech Systems",
+            payment_method="UPI",
+            is_recurring=False,
+        ),
     ])
 
     # 6. Advertising Costs
@@ -192,6 +256,61 @@ def seed_demo_data(db: Session) -> Organization:
                 clicks=48,
             )
         )
+
+    # 7. Realistic Returns & Courier RTO
+    # Attach return records to some of the generated orders
+    generated_orders = db.query(Order).filter(Order.organization_id == org.id).all()
+    if len(generated_orders) >= 4:
+        # Return 1: Courier RTO (Customer refused COD at doorstep)
+        o_rto1 = generated_orders[0]
+        o_rto1.status = "Returned"
+        db.add(Return(
+            order_id=o_rto1.id,
+            sku="CU-BOTTLE-1000ML",
+            return_date=o_rto1.order_date + timedelta(days=3),
+            return_reason="Customer refused delivery (COD Doorstep Rejection)",
+            return_type="CourierReturn_RTO",
+            condition="sellable",
+            status="Completed",
+            shipping_loss=Decimal("150.00"),  # Forward + reverse shipping loss
+            packaging_loss=Decimal("25.00"),   # Wasted box & label
+            product_damage_loss=Decimal("0.00"), # Bottle is copper, undamaged
+            total_loss=Decimal("175.00"),
+        ))
+
+        # Return 2: Courier RTO (Customer address untraceable)
+        o_rto2 = generated_orders[2]
+        o_rto2.status = "Returned"
+        db.add(Return(
+            order_id=o_rto2.id,
+            sku="AUDIO-AIR-PODS-PRO",
+            return_date=o_rto2.order_date + timedelta(days=4),
+            return_reason="Customer unreachable / incomplete pincode",
+            return_type="CourierReturn_RTO",
+            condition="sellable",
+            status="Completed",
+            shipping_loss=Decimal("130.00"),
+            packaging_loss=Decimal("35.00"),
+            product_damage_loss=Decimal("0.00"),
+            total_loss=Decimal("165.00"),
+        ))
+
+        # Return 3: Customer Return (Delivered, opened, returned defective)
+        o_cust1 = generated_orders[4]
+        o_cust1.status = "Returned"
+        db.add(Return(
+            order_id=o_cust1.id,
+            sku="KURTA-COTTON-SL-NAVY",
+            return_date=o_cust1.order_date + timedelta(days=5),
+            return_reason="Size fit issue - too tight on shoulders",
+            return_type="CustomerReturn",
+            condition="sellable",
+            status="Completed",
+            shipping_loss=Decimal("80.00"),
+            packaging_loss=Decimal("15.00"),
+            product_damage_loss=Decimal("0.00"),
+            total_loss=Decimal("95.00"),
+        ))
 
     db.commit()
     return org

@@ -67,13 +67,13 @@ export default function ImportPage() {
     <div className="flex-1 pb-16">
       <Header />
 
-      <main className="px-8 py-6 space-y-8 max-w-5xl">
+      <main className="px-4 sm:px-6 lg:px-8 py-6 space-y-8 max-w-5xl">
         {/* Page Title & Context */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Import Center</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Import</h1>
             <p className="text-xs text-slate-500 mt-1">
-              Upload your actual Amazon India transaction reports and supplier cost sheets to immediately see your real profit.
+              Upload marketplace transaction reports and supplier cost sheets.
             </p>
           </div>
 
@@ -82,23 +82,10 @@ export default function ImportPage() {
               href="/"
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors"
             >
-              <span>View Updated Profit Dashboard</span>
+              <span>View Profit Dashboard</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           )}
-        </div>
-
-        {/* Info Banner */}
-        <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 flex items-start gap-3 text-xs text-blue-900">
-          <Sparkles className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-semibold">No waiting for Amazon SP-API developer vetting</p>
-            <p className="text-blue-700 leading-relaxed">
-              Amazon Seller Central generates standard Date Range Transaction Reports containing every single real rupee
-              deduction (commissions, closing fees, shipping, TCS, TDS). Uploading these reports provides 100% accurate,
-              auditable profit analytics instantly.
-            </p>
-          </div>
         </div>
 
         {/* Two Import Cards */}
@@ -305,3 +292,4 @@ export default function ImportPage() {
     </div>
   );
 }
+

@@ -104,3 +104,4 @@ def test_cogs_csv_importer():
 
     finally:
         db.close()
+

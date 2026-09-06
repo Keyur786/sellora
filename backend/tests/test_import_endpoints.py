@@ -47,3 +47,4 @@ def test_download_sample_template(client):
     cogs_response = client.get("/api/v1/import/sample/seller_cogs")
     assert cogs_response.status_code == 200
     assert "product_cost" in cogs_response.text
+

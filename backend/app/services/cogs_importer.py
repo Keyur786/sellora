@@ -103,3 +103,4 @@ class COGSImporter:
             "products_created": products_created,
             "updated_skus": updated_skus,
         }
+

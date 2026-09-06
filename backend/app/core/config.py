@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./sellora_dev.db"
 
+    # AI Configuration (Google Gemini)
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-flash-latest"
+
     # Redis & Celery
     REDIS_URL: str = "redis://localhost:6379/0"
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"

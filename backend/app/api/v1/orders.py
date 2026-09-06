@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from app.core.database import get_db
 from app.core.dependencies import get_current_organization
@@ -44,3 +44,28 @@ def get_orders(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get("/{order_id}", response_model=OrderResponse)
+def get_order_by_id(
+    order_id: str,
+    db: Session = Depends(get_db),
+    org: Organization = Depends(get_current_organization),
+):
+    """Retrieve complete financial drill-down and itemized fees for a specific order."""
+    order = (
+        db.query(Order)
+        .options(
+            joinedload(Order.items),
+            joinedload(Order.fees),
+        )
+        .filter(Order.id == order_id, Order.organization_id == org.id)
+        .first()
+    )
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
+        )
+    return OrderResponse.model_validate(order)
+

@@ -66,15 +66,17 @@ def create_product(
     db.add(product)
     db.flush()
 
-    # Create empty inventory
-    inv = Inventory(product_id=product.id, available_quantity=0, reserved_quantity=0)
+    # Create initial inventory
+    stock_qty = data.initial_stock or 0
+    inv = Inventory(product_id=product.id, available_quantity=stock_qty, reserved_quantity=0)
     db.add(inv)
     db.commit()
     db.refresh(product)
 
     resp = ProductResponse.model_validate(product)
-    resp.available_stock = 0
+    resp.available_stock = stock_qty
     return resp
+
 
 
 @router.patch("/{product_id}", response_model=ProductResponse)

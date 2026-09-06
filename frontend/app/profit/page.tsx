@@ -40,11 +40,11 @@ export default function ProfitBreakdownPage() {
     <div className="flex-1 pb-12">
       <Header />
 
-      <main className="px-8 py-6 space-y-6">
+      <main className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Comprehensive Profit Waterfall</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Profit Waterfall</h1>
           <p className="text-xs text-slate-500 mt-1">
-            Exact deterministic reconciliation of revenue to net cash in hand. No hidden fees or missing logistics costs.
+            Revenue to net profit reconciliation across all deductions.
           </p>
         </div>
 
@@ -52,12 +52,9 @@ export default function ProfitBreakdownPage() {
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <span className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">
-              Calculated Real Net Profit
+              Real Net Profit
             </span>
             <div className="mt-1 text-3xl font-extrabold text-emerald-900">{formatINR(netProfit)}</div>
-            <p className="text-xs text-emerald-700 mt-1">
-              Actual profit retained after all marketplace commissions, product costs, and fulfillment expenses.
-            </p>
           </div>
           <div className="rounded-lg bg-white p-4 border border-emerald-200 text-center sm:text-right">
             <span className="text-xs text-slate-500 font-medium">Net Profit Margin</span>
