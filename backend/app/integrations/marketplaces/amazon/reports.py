@@ -103,3 +103,4 @@ class AmazonReportsAPI:
             delimiter = "\t" if "\t" in sample else ","
             reader = csv.DictReader(io.StringIO(text_data), delimiter=delimiter)
             return list(reader)
+

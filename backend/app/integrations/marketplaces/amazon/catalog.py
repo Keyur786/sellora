@@ -59,3 +59,4 @@ class AmazonCatalogAPI:
             params=params,
         )
         return response.get("items", [])
+

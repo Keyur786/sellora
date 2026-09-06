@@ -78,6 +78,9 @@ class GeminiClient:
                             parts = candidates[0].get("content", {}).get("parts", [])
                             if parts:
                                 return parts[0].get("text", "")
+                    elif response.status_code == 429:
+                        logger.warning(f"Gemini API free tier rate limit reached on {model_name}. Switching to live store data fallback.")
+                        break
                     elif response.status_code in (503, 404):
                         logger.info(f"Model {model_name} returned status {response.status_code}, trying fallback model...")
                         continue

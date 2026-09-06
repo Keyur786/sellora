@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     # AI Configuration (Google Gemini)
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-flash-latest"
+    GEMINI_MODEL: str = "gemini-3.6-flash"
 
     # Amazon Selling Partner API (SP-API) - India (A21TJRUUN4KGV / EU endpoint)
     SP_API_CLIENT_ID: str = ""

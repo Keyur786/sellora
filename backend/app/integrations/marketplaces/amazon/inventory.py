@@ -45,3 +45,4 @@ class AmazonFBAInventoryAPI:
                 break
 
         return all_summaries
+

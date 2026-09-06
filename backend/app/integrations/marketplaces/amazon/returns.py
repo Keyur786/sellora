@@ -48,3 +48,4 @@ class AmazonReturnsAPI:
             )
 
         return returns
+
