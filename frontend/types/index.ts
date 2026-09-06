@@ -98,7 +98,35 @@ export interface MarketplaceAccount {
   marketplace_id?: string;
   status: "connected" | "error" | "syncing" | "disconnected";
   is_active: boolean;
+  has_credentials?: boolean;
+  connection_mode?: "live" | "sandbox";
   last_synced_at?: string;
+}
+
+export interface MarketplaceCredentialsUpdate {
+  seller_id?: string;
+  marketplace_id?: string;
+  client_id?: string;
+  client_secret?: string;
+  refresh_token?: string;
+}
+
+export interface MarketplaceTestConnectionRequest {
+  marketplace_type?: string;
+  seller_id?: string;
+  client_id?: string;
+  client_secret?: string;
+  refresh_token?: string;
+  marketplace_id?: string;
+}
+
+export interface MarketplaceTestConnectionResponse {
+  success: boolean;
+  connection_mode: "live" | "sandbox";
+  message: string;
+  marketplace_name: string;
+  seller_id?: string;
+  checked_at: string;
 }
 
 export interface ProfitTrendPoint {

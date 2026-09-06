@@ -24,6 +24,15 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-flash-latest"
 
+    # Amazon Selling Partner API (SP-API) - India (A21TJRUUN4KGV / EU endpoint)
+    SP_API_CLIENT_ID: str = ""
+    SP_API_CLIENT_SECRET: str = ""
+    SP_API_REFRESH_TOKEN: str = ""
+    SP_API_SELLER_ID: str = ""
+    SP_API_MARKETPLACE_ID: str = "A21TJRUUN4KGV"
+    SP_API_ENDPOINT: str = "https://sellingpartnerapi-eu.amazon.com"
+    SP_API_ENV: str = "production"
+
     # Redis & Celery
     REDIS_URL: str = "redis://localhost:6379/0"
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"

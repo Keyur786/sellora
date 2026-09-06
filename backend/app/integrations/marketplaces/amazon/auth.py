@@ -74,3 +74,52 @@ class AmazonLWAAuth:
             self._cached_token = data.get("access_token")
             self._expires_at = now + data.get("expires_in", 3600) - 60
             return self._cached_token
+
+    async def validate_credentials(self, refresh_token: str) -> Dict[str, Any]:
+        """Verify whether the configured LWA credentials and refresh token are valid with Amazon."""
+        if not self.client_id or not self.client_secret or not refresh_token:
+            return {
+                "valid": False,
+                "mode": "sandbox",
+                "message": "Missing credentials. Running in developer sandbox mode.",
+            }
+
+        if refresh_token.startswith("mock_") or "mock" in self.client_id.lower():
+            return {
+                "valid": True,
+                "mode": "sandbox",
+                "message": "Valid developer sandbox credentials.",
+            }
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                payload = {
+                    "grant_type": "refresh_token",
+                    "refresh_token": refresh_token,
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                }
+                response = await client.post(self.TOKEN_URL, data=payload)
+                if response.status_code == 200:
+                    data = response.json()
+                    self._cached_token = data.get("access_token")
+                    self._expires_at = time.time() + data.get("expires_in", 3600) - 60
+                    return {
+                        "valid": True,
+                        "mode": "live",
+                        "message": "Successfully authenticated with Login with Amazon (LWA).",
+                    }
+                else:
+                    error_data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                    err_desc = error_data.get("error_description", response.text)
+                    return {
+                        "valid": False,
+                        "mode": "live",
+                        "message": f"Amazon LWA authentication failed ({response.status_code}): {err_desc}",
+                    }
+        except Exception as e:
+            return {
+                "valid": False,
+                "mode": "live",
+                "message": f"Connection to Amazon LWA failed: {str(e)}",
+            }
