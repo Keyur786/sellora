@@ -27,15 +27,21 @@ const SUGGESTED_QUESTIONS = [
   "What is my courier RTO rate on Cash-on-Delivery?",
 ];
 
+interface ExtendedChatMessage extends AssistantChatMessage {
+  context_tags?: string[];
+  suggested_followups?: string[];
+}
+
 export default function AssistantPage() {
   const [inputMessage, setInputMessage] = useState("");
-  const [messages, setMessages] = useState<AssistantChatMessage[]>([
+  const [messages, setMessages] = useState<ExtendedChatMessage[]>([
     {
       role: "assistant",
       content:
         "Namaste! How can I help you with your store's profits, fees, or inventory today?",
     },
   ]);
+  const [suggestedFollowups, setSuggestedFollowups] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -46,9 +52,21 @@ export default function AssistantPage() {
   });
 
   const chatMutation = useMutation({
-    mutationFn: (msg: string) => api.chatWithAssistant({ message: msg }),
+    mutationFn: (variables: { message: string; conversation_history: AssistantChatMessage[] }) =>
+      api.chatWithAssistant(variables),
     onSuccess: (data) => {
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.reply,
+          context_tags: data.context_tags,
+          suggested_followups: data.suggested_followups,
+        },
+      ]);
+      if (data.suggested_followups && data.suggested_followups.length > 0) {
+        setSuggestedFollowups(data.suggested_followups);
+      }
     },
   });
 
@@ -56,9 +74,21 @@ export default function AssistantPage() {
     const text = textToSend || inputMessage;
     if (!text.trim() || chatMutation.isPending) return;
 
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    const userMessage: ExtendedChatMessage = { role: "user", content: text };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputMessage("");
-    chatMutation.mutate(text);
+
+    // Send the last 8 messages as conversation context
+    const history: AssistantChatMessage[] = updatedMessages.slice(-8).map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    chatMutation.mutate({
+      message: text,
+      conversation_history: history,
+    });
   };
 
   useEffect(() => {
@@ -148,6 +178,20 @@ export default function AssistantPage() {
                     }`}
                   >
                     {m.content}
+
+                    {m.context_tags && m.context_tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2.5 pt-2 border-t border-slate-200/60">
+                        {m.context_tags.map((tag, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                          >
+                            <span className="h-1 w-1 rounded-full bg-emerald-500"></span>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {m.role === "user" && (
@@ -166,6 +210,26 @@ export default function AssistantPage() {
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Contextual Smart Follow-up Suggestions */}
+            {suggestedFollowups.length > 0 && (
+              <div className="px-3 py-2 bg-slate-50/90 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 shrink-0">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Suggested:</span>
+                </div>
+                {suggestedFollowups.map((f, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSend(f)}
+                    disabled={chatMutation.isPending}
+                    className="shrink-0 text-[11px] font-medium text-slate-700 bg-white hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 border border-slate-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors disabled:opacity-50"
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Input Bar */}
             <div className="p-3 border-t border-slate-100 bg-white">
